@@ -1,0 +1,10 @@
+# PYCACHEs
+__pycache__
+*.pyc
+
+# ENVIRONMENT FILES
+env/
+
+# DB DATA
+.dbdata
+
