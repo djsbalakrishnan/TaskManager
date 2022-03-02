@@ -11,6 +11,7 @@ from api.serializers import ToDoSerializer
 
 TODOS_URL = reverse('api:todo-list')
 
+
 def get_todo_detail_url(todo_id):
     """ Return detail ToDo URL """
     return reverse('api:todo-detail', args=[todo_id])
@@ -35,15 +36,16 @@ class PrivateToDoAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            'djsbalakrishnan', 
+            'djsbalakrishnan',
             'password123'
         )
         self.client.force_authenticate(self.user)
-    
+
     def test_retrieve_todos_for_user(self):
         """ Test retrieving list of todos """
         ToDo.objects.create(user=self.user, title="Complete the ToDo App")
-        ToDo.objects.create(user=self.user, title="Another reminder!", description="Testing the Todos")
+        ToDo.objects.create(
+            user=self.user, title="Another reminder!", description="Testing the Todos")
 
         res = self.client.get(TODOS_URL)
 
@@ -52,14 +54,15 @@ class PrivateToDoAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
-    
+
     def test_todos_limited_to_user(self):
         """ Test that todos for the authenticated user are returned """
         sec_user = get_user_model().objects.create_user(
             'djsb',
             'password1234'
         )
-        ToDo.objects.create(user=sec_user, title="Second User Todo", description="Second User Todo")
+        ToDo.objects.create(
+            user=sec_user, title="Second User Todo", description="Second User Todo")
         todo = ToDo.objects.create(user=self.user, title="Current User Todo")
 
         response = self.client.get(TODOS_URL)
@@ -67,7 +70,7 @@ class PrivateToDoAPITests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['title'], todo.title)
-    
+
     def test_create_valid_todo(self):
         """ Test valid todo creation for user """
         payload = {
@@ -84,7 +87,7 @@ class PrivateToDoAPITests(TestCase):
         ).exists()
 
         self.assertTrue(todo_exist)
-    
+
     def test_create_invalid_todo(self):
         """ Test invalid todo creation for user """
         payload = {
@@ -93,7 +96,7 @@ class PrivateToDoAPITests(TestCase):
         response = self.client.post(TODOS_URL, payload)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_retrieve_todos_by_id(self):
         """ Test viewing a todo detail """
         todo = ToDo.objects.create(user=self.user, title="A sample todo")
@@ -102,42 +105,46 @@ class PrivateToDoAPITests(TestCase):
         response = self.client.get(url)
         serializer = ToDoSerializer(todo)
         self.assertEqual(response.data, serializer.data)
-    
+
     def test_retrieve_todos_by_id_wrong_user(self):
         """ Test retrieving a todo detail by unathorized user """
         sec_user = get_user_model().objects.create_user(
             'djsb',
             'password1234'
         )
-        todo = ToDo.objects.create(user=sec_user, title="Second User Todo", description="Second User Todo")
+        todo = ToDo.objects.create(
+            user=sec_user, title="Second User Todo", description="Second User Todo")
         url = get_todo_detail_url(todo.id)
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
+
     def test_delete_todo_by_id_correct_user(self):
         """ Test deleting a todo by user """
-        todo = ToDo.objects.create(user=self.user, title="A sample todo to delete")
+        todo = ToDo.objects.create(
+            user=self.user, title="A sample todo to delete")
         url = get_todo_detail_url(todo.id)
 
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-    
+
     def test_delete_todo_by_id_wrong_user(self):
         """ Test deleting a todo by unathorized user """
         sec_user = get_user_model().objects.create_user(
             'djsb',
             'password1234'
         )
-        todo = ToDo.objects.create(user=sec_user, title="Second User Todo", description="Second User Todo")
+        todo = ToDo.objects.create(
+            user=sec_user, title="Second User Todo", description="Second User Todo")
         url = get_todo_detail_url(todo.id)
 
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
+
     def test_partial_update_todo(self):
         """ Test updating a todo with http patch """
-        todo = ToDo.objects.create(user=self.user, title="A sample todo to patch")
+        todo = ToDo.objects.create(
+            user=self.user, title="A sample todo to patch")
         payload = {
             'description': 'Adding new description',
             'completed': True
@@ -151,7 +158,8 @@ class PrivateToDoAPITests(TestCase):
 
     def test_full_update_todo(self):
         """ Test updating a todo with http put """
-        todo = ToDo.objects.create(user=self.user, title="A sample todo to put")
+        todo = ToDo.objects.create(
+            user=self.user, title="A sample todo to put")
         payload = {
             'title': 'New Title',
             'description': 'New description',

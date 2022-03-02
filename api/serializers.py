@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ('username', 'email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
-    
+
     def create(self, validated_data):
         """ Create a new user and return it """
         return get_user_model().objects.create_user(**validated_data)
@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
         if password:
             user.set_password(password)
             user.save()
-        
+
         return user
 
 
@@ -32,7 +32,7 @@ class AuthTokenSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(
         style={
-            'input_type': 'password'            
+            'input_type': 'password'
         },
         trim_whitespace=False
     )
@@ -50,8 +50,9 @@ class AuthTokenSerializer(serializers.Serializer):
 
         if not user:
             error_message = 'Unable to authenticate with provided credentials'
-            raise serializers.ValidationError(error_message, code='authentication')
-        
+            raise serializers.ValidationError(
+                error_message, code='authentication')
+
         attrs['user'] = user
         return attrs
 
@@ -61,5 +62,6 @@ class ToDoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ToDo
-        fields = ('id', 'title', 'description', 'completed', 'due_date', 'created_date',)
+        fields = ('id', 'title', 'description',
+                  'completed', 'due_date', 'created_date',)
         read_only_fields = ('id',)
