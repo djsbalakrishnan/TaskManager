@@ -7,6 +7,8 @@ from . import views
 router = DefaultRouter()
 router.register('todos', views.ToDoViewSet)
 
+app_name = 'api'
+
 urlpatterns = [
     path('create_user/', views.CreateUserView.as_view(), name="create_user"),
     path('create_user_token/', views.CreateUserAuthTokenView.as_view(), name="create_user_token"),
