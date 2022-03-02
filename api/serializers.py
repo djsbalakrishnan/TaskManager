@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from django.contrib.auth import get_user_model, authenticate
+from .models import ToDo
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -53,3 +54,12 @@ class AuthTokenSerializer(serializers.Serializer):
         
         attrs['user'] = user
         return attrs
+
+
+class ToDoSerializer(serializers.ModelSerializer):
+    """ Serializer for the ToDo objects """
+
+    class Meta:
+        model = ToDo
+        fields = ('id', 'title', 'description', 'completed', 'due_date', 'created_date',)
+        read_only_fields = ('id',)

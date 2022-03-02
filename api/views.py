@@ -1,8 +1,9 @@
-from rest_framework import generics, authentication, permissions
+from rest_framework import generics, authentication, permissions, viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 
-from .serializers import UserSerializer, AuthTokenSerializer
+from .serializers import UserSerializer, AuthTokenSerializer, ToDoSerializer
+from .models import ToDo
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -25,3 +26,19 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         """ Retrieve and return the current user """
         return self.request.user
+
+
+class ToDoViewSet(viewsets.ModelViewSet):
+    """ Manage the Todos in the database """
+    serializer_class = ToDoSerializer
+    queryset = ToDo.objects.all()
+    authentication_classes = (authentication.TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get_queryset(self):
+        """ Retrieve the todos for the authenticated user """
+        return self.queryset.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """ Create a new Todo """
+        serializer.save(user=self.request.user)
